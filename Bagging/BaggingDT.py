@@ -12,7 +12,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import BaggingClassifier
 from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay, accuracy_score
 from sklearn.model_selection import cross_val_score
-
+from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 df = pd.read_excel('C:/Users/tuanp/OneDrive/Documents/GitHub/RiceClassification/Rice_Dataset_Commeo_and_Osmancik/Rice_Dataset_Commeo_and_Osmancik/Rice_Cammeo_Osmancik.xlsx')
 df.shape
 df.info()
@@ -27,7 +27,7 @@ rice_class_0 = df[df['Class'] == 'Cammeo']
 rice_class_1 = df[df['Class'] == 'Osmancik']
 
 
-X = df[['Major_Axis_Length', 'Eccentricity']].values
+X = df.drop('Class', axis=1).values
 y = df['Class'].values
 
 le = LabelEncoder()
@@ -47,11 +47,37 @@ bagging_dt_model.fit(X_train, y_train)
 # Dự đoán trên tập kiểm tra
 y_pred_bagging_dt = bagging_dt_model.predict(X_test)
 
-matrix = confusion_matrix(y_test, y_pred_bagging_dt)
-display_labels = ['Cammeo', 'Osmancik']
-
-mc_visual = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=display_labels)
-mc_visual.plot()
-scores = cross_val_score(bagging_dt_model, X, y, cv=5)
+# Calculate and print accuracy using cross-validation
+scores = cross_val_score(model, X, y, cv=5)
 print(scores)
-print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
+
+# Calculate and print precision, recall, and F1-score using cross-validation
+scorers = {
+    'precision': make_scorer(precision_score, average=None),
+    'recall': make_scorer(recall_score, average=None),
+    'f1_score': make_scorer(f1_score, average=None)
+}
+
+scores_precision = cross_val_score(model, X, y, cv=5, scoring='precision')
+scores_recall = cross_val_score(model, X, y, cv=5, scoring='recall')
+scores_f1 = cross_val_score(model, X, y, cv=5, scoring='f1')
+
+precision_mean = scores_precision.mean()
+recall_mean = scores_recall.mean()
+f1_mean = scores_f1.mean()
+
+precision_std = scores_precision.std()
+recall_std = scores_recall.std()
+f1_std = scores_f1.std()
+
+print("Precision: %0.4f (+/- %0.4f)" % (precision_mean, precision_std * 2))
+print("Recall: %0.4f (+/- %0.4f)" % (recall_mean, recall_std * 2))
+print("F1-score: %0.4f (+/- %0.4f)" % (f1_mean, f1_std * 2))
+
+# Calculate normalized confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred_bagging_dt, normalize='true')
+
+# Save normalized confusion matrix to a DataFrame
+conf_matrix_df = pd.DataFrame(conf_matrix, index=['Cammeo', 'Osmancik'], columns=['Cammeo', 'Osmancik'])
+print(conf_matrix_df)

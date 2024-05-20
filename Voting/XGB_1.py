@@ -45,3 +45,9 @@ xgb_cv = GridSearchCV(xgb, xgb_params, cv=kf, refit=True, scoring='accuracy',ver
 xgb_cv.fit(X_train, y_train)
 print(f'Training Accuracy of XGB: {accuracy_score(xgb_cv.predict(X_train), y_train)}')
 print(f'Estimator for XGB: {xgb_cv.best_estimator_}')
+
+# Đánh giá độ chính xác của mô hình tốt nhất trên tập test
+best_xgb_model = xgb_cv.best_estimator_
+y_pred_test = best_xgb_model.predict(X_test)
+test_accuracy = accuracy_score(y_test, y_pred_test)
+print(f'Test Accuracy of the best XGBoost model: {test_accuracy}')

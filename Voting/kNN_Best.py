@@ -3,11 +3,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.model_selection import GridSearchCV, KFold
-from sklearn.metrics import confusion_matrix, accuracy_score, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix, accuracy_score, ConfusionMatrixDisplay, classification_report
 from xgboost import XGBClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import VotingClassifier
@@ -32,7 +32,7 @@ df['Class'].value_counts(normalize=True)
 # Split for features and targets, standardize features
 X = df.iloc[:,:-1].to_numpy()
 Y = df.iloc[:,-1].astype('category').cat.codes.to_numpy()
-scaler = MinMaxScaler()
+scaler = StandardScaler()
 standard_x = scaler.fit_transform(X)
 
 # train test split and inspect the shape
@@ -53,5 +53,7 @@ knn_params = {'n_neighbors': [8],
 knn_model = KNeighborsClassifier()
 knn_cv = GridSearchCV(knn_model, knn_params, cv=kf, verbose=0, scoring='accuracy', refit=True)
 knn_cv.fit(X_train, y_train)
+y_pred = knn_cv.predict(X_test)
 print(f'Training Accuracy of KNN: {knn_cv.best_score_}')
 print(f'Estimator of KNN: {knn_cv.best_estimator_}')
+print(classification_report(y_test, y_pred, digits=4))
