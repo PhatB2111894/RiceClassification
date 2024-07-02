@@ -7,9 +7,10 @@ import numpy as np
 import scipy.stats as stats
 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
+from sklearn.pipeline import Pipeline
 from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay, accuracy_score
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
@@ -25,12 +26,12 @@ y = le.fit_transform(y)  # [0] Cammeo | [1] Osmancik
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+model = Pipeline([
+    ('scaler', MinMaxScaler()),
+    ('classifier', GaussianNB())
+])
 
-# Build Naive Bayes model
-model = GaussianNB()
+# Fit the model using pipeline
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 

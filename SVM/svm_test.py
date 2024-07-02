@@ -1,20 +1,11 @@
 import os
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import math
-import numpy as np
-import scipy.stats as stats
-from scipy.io import arff
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import BaggingClassifier
-from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay, accuracy_score
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
+from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
+from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 # Load the dataset
 df = pd.read_excel('C:/Users/tuanp/OneDrive/Documents/GitHub/RiceClassification/Rice_Dataset_Commeo_and_Osmancik/Rice_Dataset_Commeo_and_Osmancik/Rice_Cammeo_Osmancik.xlsx')
 
@@ -28,11 +19,10 @@ y = le.fit_transform(y)  # [0] Cammeo | [1] Osmancik
 
 # Split the dataset into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-model = KNeighborsClassifier(n_neighbors=8, p = 1)
-# Initialize XGBoost Classifier with default parameters
+
 pipeline = Pipeline([
     ('scaler', MinMaxScaler()),
-    ('classifier', BaggingClassifier(estimator=model, n_estimators=10))
+    ('classifier', SVC(C=10000, kernel='linear', gamma=0.01))
 ])
 
 # Fit the model using pipeline

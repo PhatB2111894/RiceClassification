@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.model_selection import GridSearchCV, KFold
@@ -32,11 +32,11 @@ df['Class'].value_counts(normalize=True)
 # Split for features and targets, standardize features
 X = df.iloc[:,:-1].to_numpy()
 Y = df.iloc[:,-1].astype('category').cat.codes.to_numpy()
-scaler = MinMaxScaler()
+scaler = StandardScaler()
 standard_x = scaler.fit_transform(X)
 
 # train test split and inspect the shape
-X_train, X_test, y_train, y_test = train_test_split(standard_x, Y, test_size=1/3, random_state=42, stratify=Y)
+X_train, X_test, y_train, y_test = train_test_split(standard_x, Y, test_size=0.2, random_state=42)
 # print(f'train feature shape: {X_train.shape}')
 # print(f'train target shape: {y_train.shape}')
 # print(f'test feature shape: {X_test.shape}')

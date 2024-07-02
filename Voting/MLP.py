@@ -25,16 +25,13 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Initialize MLP Classifier
-model = MLPClassifier(random_state=42)
+model = MLPClassifier(activation='relu',learning_rate= 'constant', max_iter= 400,solver= 'adam', random_state=42)
 
 # Train the model
 model.fit(X_train, y_train)
 
 # Predict on the test set
 y_pred = model.predict(X_test)
-
-print(classification_report(y_test, y_pred, digits=4))
-# Calculate and print accuracy using cross-validation
 scores = cross_val_score(model, X, y, cv=5)
 print(scores)
 print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))

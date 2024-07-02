@@ -7,13 +7,15 @@ import numpy as np
 import scipy.stats as stats
 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay, accuracy_score
 from sklearn.model_selection import cross_val_score
+from sklearn.pipeline import Pipeline
 from sklearn.metrics import make_scorer, precision_score, recall_score, f1_score
 
+# Load the dataset
 df = pd.read_excel('C:/Users/tuanp/OneDrive/Documents/GitHub/RiceClassification/Rice_Dataset_Commeo_and_Osmancik/Rice_Dataset_Commeo_and_Osmancik/Rice_Cammeo_Osmancik.xlsx')
 
 # Preprocessing data
@@ -25,33 +27,28 @@ y = le.fit_transform(y)  # [0] Cammeo | [1] Osmancik
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+# Build pipeline with scaling and KNN
+pipeline = Pipeline([
+    ('scaler', MinMaxScaler()),
+    ('knn', KNeighborsClassifier(n_neighbors=8, p=1, weights='uniform'))
+])
 
-# Build KNN model
-model = KNeighborsClassifier(n_neighbors=8, p=1)
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+# Fit the model using pipeline
+pipeline.fit(X_train, y_train)
+y_pred = pipeline.predict(X_test)
 
 # Evaluate model performance
 print(classification_report(y_test, y_pred, digits=4))
 
 # Calculate and print accuracy using cross-validation
-scores = cross_val_score(model, X, y, cv=5)
+scores = cross_val_score(pipeline, X, y, cv=5)
 print(scores)
 print("Accuracy: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
 
 # Calculate and print precision, recall, and F1-score using cross-validation
-scorers = {
-    'precision': make_scorer(precision_score, average=None),
-    'recall': make_scorer(recall_score, average=None),
-    'f1_score': make_scorer(f1_score, average=None)
-}
-
-scores_precision = cross_val_score(model, X, y, cv=5, scoring='precision')
-scores_recall = cross_val_score(model, X, y, cv=5, scoring='recall')
-scores_f1 = cross_val_score(model, X, y, cv=5, scoring='f1')
+scores_precision = cross_val_score(pipeline, X, y, cv=5, scoring='precision')
+scores_recall = cross_val_score(pipeline, X, y, cv=5, scoring='recall')
+scores_f1 = cross_val_score(pipeline, X, y, cv=5, scoring='f1')
 
 precision_mean = scores_precision.mean()
 recall_mean = scores_recall.mean()

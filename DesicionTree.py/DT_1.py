@@ -32,10 +32,10 @@ X_test = scaler.transform(X_test)
 
 # Định nghĩa các tham số cho GridSearchCV
 param_grid = {
-    'criterion': ['entropy'],
-    'max_depth': [5],
-    'min_samples_split': [2],
-    'min_samples_leaf': [2]
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [5, 10, 15, 20, 25, 30, None],
+    'min_samples_split': [2, 5, 10, 15, 20],
+    'min_samples_leaf': [1, 2, 4, 6, 8, 10]
 }
 
 # Tạo GridSearchCV
